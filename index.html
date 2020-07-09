@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <script>window.$ = window.jQuery = require('jquery');</script>
+      <script src="./buttons.js"></script>
+		<link rel="stylesheet" type="text/css" href="main.css">
+        <link rel="stylesheet" href="photon.css">
+        <link rel="stylesheet" href="bootstrap.css">
+  </head>
+    <header class="toolbar toolbar-header">
+		<div class="toolbar-actions">
+			<button id="close-btn" class="btn btn-default">X</button>
+			<button id="mini-btn" class="btn btn-default">_</button>
+		</div>
+    </header>
+            <div class="container" id="app">
+            <div class="row mt-5">
+            <div class="col-12 border-bottom mb-5">
+                <h2>{{name}}</h2>
+            </div>
+
+            <div class="col-4">
+
+                <form action="">
+
+                    <div class="form-group mr-1">
+                        <label>Nome</label>
+                        <input type="text" class="form-control" placeholder="Nome Completo..." v-model="contact.name">
+                    </div>
+
+
+                    <div class="form-group mr-1">
+                        <label>E-mail</label>
+                        <input type="email" class="form-control" placeholder="Seu melhor email..." v-model="contact.email">
+                    </div>
+
+                    <div class="form-group mr-1">
+                        <label>Contato</label>
+                        <input type="phone" class="form-control" placeholder="Telefone/Celular" v-model="contact.phone">
+                    </div>
+
+                    <div class="form-group ml-1">
+                        <button v-if="!isEdit" class="btn btn-lg btn-rounded btn-success" v-on:click.prevent="saveContact(contact)">Criar Contato</button>
+
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-8 border-left">
+                
+                <div class="contact">
+                        
+                    <div class="col-12 mb-2" v-for="contact in contacts">
+
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{contact.name}}</h5>
+
+                                <p class="card-text">{{contact.email}}, {{contact.phone}}</p>
+
+                                <a href="#" class="btn btn-sm btn-danger" @click.prevent="removeContact(contact.id)">DELETAR</a>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+        let app = new Vue({
+            el: "#app",
+            data: {
+                contacts: [],
+                name: 'Eletrogenda',
+                contact: {
+                    id: '',
+                    name: '',
+                    email: '',
+                    phone: ''
+                },
+                isEdit: false
+            },
+            created() {
+                this.contacts = JSON.parse(localStorage.getItem('contactsApp'));
+            },
+            methods: {
+                saveContact(contact) {
+                    let contacts = localStorage.getItem('contactsApp');
+                    contact.id = new Date().getTime();
+                    if(contacts) {
+                        contacts = JSON.parse(contacts);
+                        contacts.push(contact);
+                        
+                    } else {
+                        contacts = [contact];
+                    }
+                    this.contacts = contacts;
+                    //sempre atualizar o local storage mesmo sem adiçao
+                    localStorage.setItem('contactsApp', JSON.stringify(contacts));
+                    locantion.reload();
+                },
+                removeContact(contactId) {
+                    let contacts = localStorage.getItem('contactsApp');
+                    if (!contacts) return;
+                    contacts = JSON.parse(contacts);
+                    contacts = contacts.filter((contact) => {
+                        return contact.id != contactId;
+                    });
+                    this.contacts = contacts;
+                    localStorage.setItem('contactsApp', JSON.stringify(contacts));
+                },
+                editContact(contact) {
+                    this.contact = contact;
+                    this.isEdit = true;
+                },
+                updateContact(contact) {
+                    let contacts = this.contacts.map(contactMap => {
+                        if(contactMap.id == contact.id) {
+                            return contact;
+                        }
+                        return contactMap;
+                    });
+                    this.contacts = contacts;
+                    this.isEdit = false;
+                    localStorage.setItem('contactsApp', JSON.stringify(contacts));
+                    location.reload();
+                }
+            }
+        });
+    </script>	
+  </body>
+</html>
